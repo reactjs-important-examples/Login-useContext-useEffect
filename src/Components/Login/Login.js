@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useReducer, useState} from "react";
+import React, {useContext, useEffect, useReducer, useRef, useState} from "react";
 
 import Card from '../UI/Card/Card';
 import Button from '../UI/Button/Button';
@@ -39,6 +39,7 @@ const passwordReducer = (state, action) => {
         isValid: null
     });
 }
+
 const Login = () => {
 
     const AuthCtx = useContext(AuthContext);
@@ -54,6 +55,9 @@ const Login = () => {
 
     const{isValid: isValidEmail} = emailState;
     const{isValid: isValidPassWord} = passwordState;
+
+    const emailInputRef = useRef();
+    const passworInputRef = useRef();
 
     useEffect(()=>{
         const identifer =  setTimeout(()=>{
@@ -85,13 +89,20 @@ const Login = () => {
 
     const submitHandler = (event) => {
         event.preventDefault();
-        AuthCtx.onLogin(emailState.value, passwordState.value);
+        if(formIsValid){
+            AuthCtx.onLogin(emailState.value, passwordState.value);
+        }else if(!emailState.isValid){
+            emailInputRef.current.active();
+        }else{
+            passworInputRef.current.active();
+        }
     };
 
     return(
         <Card className={styles.login}>
             <form onSubmit={submitHandler}>
                 <Input 
+                    ref={emailInputRef}
                     value={emailState.value} 
                     isValid={emailState.isValid}
                     onChange={emailChangeHandler} 
@@ -102,6 +113,7 @@ const Login = () => {
                     />
 
                 <Input 
+                    ref={passworInputRef}
                     value={passwordState.value} 
                     isValid={passwordState.isValid}
                     onChange={passwordChangeHandler} 
@@ -112,7 +124,7 @@ const Login = () => {
                     />
                 
                 <div className={styles.actions}>
-                    <Button type="submit" className={styles.btn} disabled={!formIsValid}>
+                    <Button type="submit" className={styles.btn}>
                     Login
                     </Button>
                 </div>
